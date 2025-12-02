@@ -1,49 +1,141 @@
-@extends('layouts.dashboard')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'Dashboard Admin')</title>
 
-@section('judul', 'Admin Dashboard')
+    {{-- Fonts & Styles --}}
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('mazer/dist/assets/css/bootstrap.css') }}">
+    <link rel="stylesheet" href="{{ asset('mazer/dist/assets/vendors/perfect-scrollbar/perfect-scrollbar.css') }}">
+    <link rel="stylesheet" href="{{ asset('mazer/dist/assets/vendors/bootstrap-icons/bootstrap-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('mazer/dist/assets/css/app.css') }}">
+    <link rel="shortcut icon" href="{{ asset('mazer/dist/assets/images/favicon.svg') }}" type="image/x-icon">
+    @livewireStyles
+</head>
 
-@section('content')
-<div class="min-h-screen bg-gradient-to-b from-amber-50 to-white flex flex-col">
+<body>
+    <div id="app">
+        {{-- Sidebar --}}
+        <div id="sidebar" class="active">
+            <div class="sidebar-wrapper active">
+                <div class="sidebar-header">
+                    <div class="d-flex justify-content-between">
+                        <div class="logo">
+                            <a href="{{ route('admin.dashboard') }}"><img src="{{ asset('/images/logoremove.png') }}" alt="Logo" style="height: 60px; width: auto;"></a>
+                        </div>
+                        <div class="toggler">
+                            <a href="#" class="sidebar-hide d-xl-none d-block">
+                                <i class="bi bi-x bi-middle"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
-    {{-- Navbar --}}
-    <nav class="flex justify-between items-center px-8 py-4 bg-white shadow-sm border-b border-amber-100">
-        <div class="flex items-center space-x-2">
-            <img src="{{ asset('images/logoremove.png') }}" alt="Logo Madrasah Imam Muzani" class="w-12 h-12">
-            <h1 class="text-xl font-semibold" style="color:#5C3A00;">Madrasah Imam Muzani</h1>
+                {{-- Menu --}}
+                <div class="sidebar-menu">
+                    <ul class="menu">
+                        <li class="sidebar-title">Dashboard</li>
+
+                        <li class="sidebar-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                            <a href="{{ route('admin.dashboard') }}" class="sidebar-link  {{ request()->routeIs('admin.dashboard') ? 'bg-primary text-white' : '' }}">
+                                <i class="bi bi-grid-fill"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-title">Data Master</li>
+
+                        <li class="sidebar-item {{ request()->routeIs('ustadz.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.ustadz.index') }}" class="sidebar-link {{ request()->routeIs('admin.ustadz.*') ? 'bg-primary text-white' : '' }} ">
+                                <i class="bi bi-person-badge-fill"></i>
+                                <span>Data Ustadz</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item {{ request()->routeIs('santri.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.santri.index') }}" class="sidebar-link {{ request()->routeIs('admin.santri.*') ? 'bg-primary text-white' : '' }}">
+                                <i class="bi bi-people-fill"></i>
+                                <span>Data Santri</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item {{ request()->routeIs('hafalan.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.hafalan.index') }}" class="sidebar-link {{ request()->routeIs('admin.hafalan.*') ? 'bg-primary text-white' : '' }}">
+                                <i class="bi bi-book-fill"></i>
+                                <span>Data Hafalan</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item {{ request()->routeIs('kelas.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.kelas.index') }}" class="sidebar-link {{ request()->routeIs('admin.kelas.*') ? 'bg-primary text-white' : '' }}">
+                                <i class="bi bi-building"></i>
+                                <span>Data Kelas</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item {{ request()->routeIs('laporan.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.laporan.index') }}" class="sidebar-link  {{ request()->routeIs('admin.laporan.*') ? 'bg-primary text-white' : '' }}">
+                                <i class="bi bi-door-open-fill"></i>
+                                <span>Data Laporan</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item {{ request()->routeIs('jadwal.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.jadwal.index') }}" class="sidebar-link {{ request()->routeIs('admin.jadwal.*') ? 'bg-primary text-white' : '' }}">
+                                <i class="bi bi-calendar-event-fill"></i>
+                                <span>Jadwal</span>
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+
+                <button class="sidebar-toggler btn x">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
         </div>
 
-        <div class="space-x-6">
-            <a href="{{ route('admin.dashboard') }}" class="text-[#C57A00] font-semibold">Dashboard</a>
-            <a href="{{ route('logout') }}"
-               onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-               class="text-red-500 hover:underline">
-               Logout
-            </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
-                @csrf
-            </form>
+        {{-- Main Content --}}
+        <div id="main">
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
+
+            {{-- Dynamic Content --}}
+            <div class="page-heading">
+                <h3>@yield('page-title')</h3>
+            </div>
+
+            <div class="page-content">
+                @yield('content')
+            </div>
+
+            {{-- Footer --}}
+            <footer>
+                <div class="footer clearfix mb-0 text-muted">
+                    <div class="float-start">
+                        <p>© {{ date('Y') }} Sistem Informasi Santri</p>
+                    </div>
+                    <div class="float-end">
+                        <p>Developed by <span class="text-primary">Ashyan</span></p>
+                    </div>
+                </div>
+            </footer>
         </div>
-    </nav>
+    </div>
 
-    {{-- Hero / Welcome --}}
-    <section class="flex flex-col items-center justify-center flex-1 text-center px-6 py-20">
-        <h2 class="text-4xl sm:text-5xl font-extrabold mb-6" style="color:#5C3A00;">
-            Selamat Datang, Admin Imam Muzani 👋
-        </h2>
-        <p class="max-w-2xl text-gray-700 text-lg mb-8">
-            Kamu berhasil login sebagai <strong>Admin</strong>.
-        </p>
-    </section>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @yield('scripts')
 
-    {{-- Dashboard Cards --}}
-    <section class="px-6 py-12 max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8">
-        @livewire('card-dashboard')
-    </section>
-
-    {{-- Footer --}}
-    <footer class="text-center py-4 bg-amber-100" style="color:#5C3A00;">
-        &copy; {{ date('Y') }} Madrasah Imam Muzani. All rights reserved.
-    </footer>
-
-</div>
-@endsection
+    {{-- Scripts --}}
+    <script src="{{ asset('mazer/dist/vendors/perfect-scrollbar/perfect-scrollbar.min.js') }}"></script>
+    <script src="{{ asset('mazer/dist/assets/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('mazer/dist/assets/js/main.js') }}"></script>
+    @livewireScripts
+</body>
+</html>

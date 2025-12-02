@@ -14,7 +14,8 @@ module.exports = {
         }
     },
     content: [
-        './app/**/*.php',
+        
+        './resources/views/**/*.blade.php',
         './resources/**/*.html',
         './resources/**/*.js',
         './resources/**/*.jsx',
