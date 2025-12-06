@@ -21,6 +21,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'role', // admin or ustadz
     ];
 
     /**
@@ -41,4 +42,10 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    // Relasi ke Ustadz
+    public function ustadz()
+    {
+        return $this->hasOne(\App\Models\Ustadz::class);
+    }
 }

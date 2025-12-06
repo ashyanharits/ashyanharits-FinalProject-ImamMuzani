@@ -14,4 +14,5 @@ class Kelas extends Model
         'status',
         'keterangan'
     ];
+  
 }

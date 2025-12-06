@@ -35,7 +35,18 @@ class Register extends Component
             'email' => $this->email,
             'name' => $this->name,
             'password' => Hash::make($this->password),
+            'role' => 'ustadz', // Default role untuk register publik
         ]);
+
+        // Otomatis buatkan data Ustadz jika role = ustadz
+        if ($user->role === 'ustadz') {
+            \App\Models\Ustadz::create([
+                'user_id' => $user->id,
+                'nama' => $user->name,
+                'alamat' => null, // Bisa diisi nanti
+                'no_hp' => null,  // Bisa diisi nanti
+            ]);
+        }
 
         event(new Registered($user));
 

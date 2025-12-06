@@ -22,13 +22,21 @@ class Berandaustadz extends Component
     public function mount()
     {
         $user = Auth::user();
-        // Asumsi: user login terhubung ke tabel ustadz via relasi atau kita cari manual
-        // Karena belum ada relasi resmi di User model, kita cari ustadz berdasarkan nama atau email yang sama, 
-        // atau sementara kita pakai id user jika asumsinya id user == id ustadz (seperti kode sebelumnya).
-        // Untuk keamanan, kita coba cari Ustadz yang namanya mirip user login, atau fallback ke ID.
         
-        $ustadz = \App\Models\Ustadz::where('nama', $user->name)->first();
-        $ustadzId = $ustadz ? $ustadz->id : $user->id; // Fallback
+        // Cari ustadz berdasarkan user_id (relasi langsung)
+        $ustadz = \App\Models\Ustadz::where('user_id', $user->id)->first();
+        
+        // Jika tidak ketemu, buat otomatis (untuk user lama yang belum punya data ustadz)
+        if (!$ustadz) {
+            $ustadz = \App\Models\Ustadz::create([
+                'user_id' => $user->id,
+                'nama' => $user->name,
+                'alamat' => null,
+                'no_hp' => null,
+            ]);
+        }
+        
+        $ustadzId = $ustadz->id;
 
         // 1. Total santri binaan
         $this->totalSantri = Santri::where('ustadz_id', $ustadzId)->count();

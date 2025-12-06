@@ -16,7 +16,12 @@
                 <a href="#program" class="hover:text-[#C57A00] transition">Program</a>
                 <a href="#kontak" class="hover:text-[#C57A00] transition">Kontak</a>
                 @auth
-                    <a href="{{ url('/admin/dashboard') }}" class="text-[#C57A00] font-semibold">Dashboard</a>
+                    @php
+                        $dashboardUrl = Auth::user()->role === 'admin' 
+                            ? route('admin.dashboard') 
+                            : route('dashboardustadz');
+                    @endphp
+                    <a href="{{ $dashboardUrl }}" class="text-[#C57A00] font-semibold">Dashboard</a>
                 @else
                     <a href="{{ route('login') }}" class="hover:text-[#C57A00] transition">Login</a>
                     <a href="{{ route('register') }}" class="hover:text-[#C57A00] transition">Register</a>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Kelas;
+use App\Models\Ustadz; // Import model Ustadz
 use Illuminate\Http\Request;
 
 class KelasController extends Controller
@@ -18,7 +19,8 @@ class KelasController extends Controller
     // Form tambah kelas
     public function create()
     {
-        return view('admin.kelas.create');
+        $ustadz = Ustadz::all(); // Ambil semua data ustadz
+        return view('admin.kelas.create', compact('ustadz'));
     }
 
     // Simpan kelas baru
@@ -42,7 +44,8 @@ class KelasController extends Controller
     public function edit($id)
     {
         $kelas = Kelas::findOrFail($id);
-        return view('admin.kelas.edit', compact('kelas'));
+        $ustadz = Ustadz::all(); // Ambil semua data ustadz untuk dropdown
+        return view('admin.kelas.edit', compact('kelas', 'ustadz'));
     }
 
     // Update kelas

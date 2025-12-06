@@ -10,5 +10,11 @@ class Ustadz extends Model
     use HasFactory;
 
      protected $table = 'ustadz';
-     protected $fillable = ['nama', 'alamat', 'no_hp'];
+     protected $fillable = ['user_id', 'nama', 'alamat', 'no_hp'];
+
+     // Relasi ke User
+     public function user()
+     {
+         return $this->belongsTo(User::class);
+     }
 }

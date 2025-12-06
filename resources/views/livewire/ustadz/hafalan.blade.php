@@ -1,3 +1,4 @@
+{{-- FORCE RELOAD: 2025-12-04 17:34 --}}
 <div class="container-fluid p-4">
 
     @if(!$isDetailMode)

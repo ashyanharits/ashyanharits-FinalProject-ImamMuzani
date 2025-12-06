@@ -6,14 +6,15 @@
     <title>{{ $title ?? 'Dashboard Ustadz' }}</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('mazer/dist/assets/css/bootstrap.css') }}">
-    <link rel="stylesheet" href="{{ asset('mazer/dist/assets/vendors/perfect-scrollbar/perfect-scrollbar.css') }}">
-    <link rel="stylesheet" href="{{ asset('mazer/dist/assets/vendors/bootstrap-icons/bootstrap-icons.css') }}">
-    <link rel="stylesheet" href="{{ asset('mazer/dist/assets/css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('mazer/dist/assets/css/bootstrap.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('mazer/dist/assets/vendors/perfect-scrollbar/perfect-scrollbar.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('mazer/dist/assets/vendors/bootstrap-icons/bootstrap-icons.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('mazer/dist/assets/css/app.css') }}?v={{ time() }}">
     <link rel="shortcut icon" href="{{ asset('mazer/dist/assets/images/favicon.svg') }}" type="image/x-icon">
 
     @livewireStyles
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -78,8 +79,37 @@
                                 <span>Laporan</span>
                             </a>
                         </li>
+                        <li class="sidebar-item mt-3">
+                            <a href="#" class="sidebar-link text-danger" onclick="confirmLogout(event)">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Logout</span>
+                            </a>
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                @csrf
+                            </form>
+                        </li>
                     </ul>
                 </div>
+
+                <script>
+                    function confirmLogout(e) {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Yakin ingin keluar?',
+                            text: "Anda akan diarahkan kembali ke halaman login.",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Ya, Keluar!',
+                            cancelButtonText: 'Batal'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                document.getElementById('logout-form').submit();
+                            }
+                        })
+                    }
+                </script>
 
                 <button class="sidebar-toggler btn x">
                     <i data-feather="x"></i>

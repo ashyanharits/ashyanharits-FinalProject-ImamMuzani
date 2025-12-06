@@ -49,8 +49,9 @@ class Hafalan extends Component
     public function render()
     {
         $user = Auth::user();
-        $ustadz = \App\Models\Ustadz::where('nama', $user->name)->first();
-        $ustadzId = $ustadz ? $ustadz->id : $user->id;
+        // Cari ustadz berdasarkan nama user
+        $ustadz = \App\Models\Ustadz::where('user_id', $user->id)->first();
+        $ustadzId = $ustadz ? $ustadz->id : $user->id; // Fallback
 
         if ($this->isDetailMode && $this->selectedSantriId) {
             $santri = Santri::with(['hafalan' => function($q) {
@@ -92,7 +93,7 @@ class Hafalan extends Component
         $this->validate();
 
         $user = Auth::user();
-        $ustadz = \App\Models\Ustadz::where('nama', $user->name)->first();
+        $ustadz = \App\Models\Ustadz::where('user_id', $user->id)->first();
         $ustadzId = $ustadz ? $ustadz->id : $user->id;
 
         HafalanModel::create([

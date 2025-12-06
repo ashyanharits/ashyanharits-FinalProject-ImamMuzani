@@ -26,13 +26,20 @@ class Login extends Component
     {
         $this->validate();
 
-        if (!Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
-            $this->addError('email', trans('auth.failed'));
-
+        // Check if user exists
+        $user = \App\Models\User::where('email', $this->email)->first();
+        
+        if (!$user) {
+            $this->addError('email', 'Akun dengan email ini belum terdaftar. Silakan daftar terlebih dahulu.');
             return;
         }
 
- 
+        // Attempt login
+        if (!Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+            $this->addError('email', 'Email atau password salah. Silakan coba lagi.');
+            return;
+        }
+
         return redirect()->intended(route('admin.dashboard'));
     }
 

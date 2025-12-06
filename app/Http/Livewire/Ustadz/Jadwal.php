@@ -13,12 +13,16 @@ class Jadwal extends Component
 
     public function mount()
     {
-        $ustadzId = Auth::user()->id;
-
-        // Ambil jadwal untuk ustadz yang login
-        $this->jadwal = JadwalModel::where('ustadz_id', $ustadzId)
-            ->orderBy('tanggal', 'asc')
-            ->get();
+        $user = Auth::user();
+        $ustadz = \App\Models\Ustadz::where('user_id', $user->id)->first();
+        
+        if ($ustadz) {
+            $this->jadwal = JadwalModel::where('ustadz_id', $ustadz->id)
+                ->orderBy('tanggal', 'asc')
+                ->get();
+        } else {
+            $this->jadwal = [];
+        }
     }
 
     public function render()

@@ -29,8 +29,17 @@ class Santri extends Component
     public function render()
     {
         $user = \Illuminate\Support\Facades\Auth::user();
-        $ustadz = \App\Models\Ustadz::where('nama', $user->name)->first();
-        $ustadzId = $ustadz ? $ustadz->id : $user->id;
+        $ustadz = \App\Models\Ustadz::where('user_id', $user->id)->first();
+        
+        // Jika tidak ada, buat otomatis
+        if (!$ustadz) {
+            $ustadz = \App\Models\Ustadz::create([
+                'user_id' => $user->id,
+                'nama' => $user->name,
+            ]);
+        }
+        
+        $ustadzId = $ustadz->id;
 
         // Query Santri Binaan
         $query = SantriModel::where('ustadz_id', $ustadzId)
@@ -96,8 +105,16 @@ class Santri extends Component
         ]);
 
         $user = \Illuminate\Support\Facades\Auth::user();
-        $ustadz = \App\Models\Ustadz::where('nama', $user->name)->first();
-        $ustadzId = $ustadz ? $ustadz->id : $user->id;
+        $ustadz = \App\Models\Ustadz::where('user_id', $user->id)->first();
+        
+        if (!$ustadz) {
+            $ustadz = \App\Models\Ustadz::create([
+                'user_id' => $user->id,
+                'nama' => $user->name,
+            ]);
+        }
+        
+        $ustadzId = $ustadz->id;
 
         SantriModel::updateOrCreate(
             ['id' => $this->santri_id],

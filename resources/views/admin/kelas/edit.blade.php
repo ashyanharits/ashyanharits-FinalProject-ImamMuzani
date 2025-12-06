@@ -2,41 +2,68 @@
 @section('page-title', 'Edit Kelas')
 
 @section('content')
-<h4 class="fw-bold mb-3">Edit Kelas</h4>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0 text-warning"><i class="bi bi-pencil-square me-2"></i>Edit Kelas</h5>
+            </div>
+            <div class="card-body p-4">
+                <form action="{{ route('admin.kelas.update', $kelas->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
 
-<form action="{{ route('admin.kelas.update', $kelas->id) }}" method="POST">
-    @csrf
-    @method('PUT')
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Nama Kelas <span class="text-danger">*</span></label>
+                            <input type="text" name="nama_kelas" class="form-control @error('nama_kelas') is-invalid @enderror" value="{{ old('nama_kelas', $kelas->nama_kelas) }}">
+                            @error('nama_kelas')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
 
-    <div class="mb-3">
-        <label>Nama Kelas</label>
-        <input type="text" name="nama_kelas" class="form-control" value="{{ old('nama_kelas', $kelas->nama_kelas) }}">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Mata Pelajaran <span class="text-danger">*</span></label>
+                            <input type="text" name="pelajaran" class="form-control @error('pelajaran') is-invalid @enderror" value="{{ old('pelajaran', $kelas->pelajaran) }}">
+                            @error('pelajaran')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Wali Kelas</label>
+                            <select name="wali_kelas" class="form-select @error('wali_kelas') is-invalid @enderror">
+                                <option value="">-- Pilih Wali Kelas --</option>
+                                @foreach($ustadz as $u)
+                                    <option value="{{ $u->nama }}" {{ old('wali_kelas', $kelas->wali_kelas) == $u->nama ? 'selected' : '' }}>{{ $u->nama }}</option>
+                                @endforeach
+                            </select>
+                            @error('wali_kelas')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Status Kelas</label>
+                            <select name="status" class="form-select">
+                                <option value="aktif" {{ old('status', $kelas->status) == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                <option value="non-aktif" {{ old('status', $kelas->status) == 'non-aktif' ? 'selected' : '' }}>Non-Aktif</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Keterangan (Opsional)</label>
+                            <textarea name="keterangan" class="form-control" rows="3">{{ old('keterangan', $kelas->keterangan) }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{{ route('admin.kelas.index') }}" class="btn btn-light border">Batal</a>
+                        <button type="submit" class="btn btn-warning px-4"><i class="bi bi-save me-1"></i> Update Kelas</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label>Pelajaran</label>
-        <input type="text" name="pelajaran" class="form-control" value="{{ old('pelajaran', $kelas->pelajaran) }}">
-    </div>
-
-    <div class="mb-3">
-        <label>Wali Kelas</label>
-        <input type="text" name="wali_kelas" class="form-control" value="{{ old('wali_kelas', $kelas->wali_kelas) }}">
-    </div>
-
-    <div class="mb-3">
-        <label>Status</label>
-        <select name="status" class="form-control">
-            <option value="aktif" {{ old('status', $kelas->status) == 'aktif' ? 'selected' : '' }}>Aktif</option>
-            <option value="cuti" {{ old('status', $kelas->status) == 'cuti' ? 'selected' : '' }}>Cuti</option>
-        </select>
-    </div>
-
-    <div class="mb-3">
-        <label>Keterangan</label>
-        <textarea name="keterangan" class="form-control">{{ old('keterangan', $kelas->keterangan) }}</textarea>
-    </div>
-
-    <button class="btn btn-primary">Update</button>
-    <a href="{{ route('admin.kelas.index') }}" class="btn btn-secondary">Kembali</a>
-</form>
+</div>
 @endsection

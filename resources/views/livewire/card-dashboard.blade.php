@@ -8,28 +8,15 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h3 class="fw-bold mb-0">Selamat Datang, {{ Auth::user()->name ?? 'Admin' }} 👋</h3>
-        <small class="text-muted">Hari ini: {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</small>
+        <h3 class="fw-bold mb-0">Dashboard Admin</h3>
+        <p class="text-muted mb-0">Ringkasan data dan perkembangan santri Imam Muzani.</p>
     </div>
 
-    <div class="d-flex align-items-center gap-2">
-        {{-- Dark mode toggle --}}
-        <button id="themeToggle" class="btn btn-sm btn-outline-secondary" title="Toggle theme">
-            <i id="themeIcon" class="bi bi-moon-fill"></i>
-        </button>
-
-        {{-- Notification bell (placeholder) --}}
-        <button id="notifyTest" class="btn btn-sm btn-outline-primary" title="Test notification">
-            <i class="bi bi-bell-fill"></i>
-        </button>
-
-        {{-- Quick export buttons (ganti route sesuai) --}}
-        <a href="{{ route('admin.export.excel') ?? '#' }}" class="btn btn-sm btn-success">
-            <i class="bi bi-file-earmark-excel"></i> Export Excel
-        </a>
-        <a href="{{ route('admin.export.pdf') ?? '#' }}" class="btn btn-sm btn-danger">
-            <i class="bi bi-file-earmark-pdf"></i> Export PDF
-        </a>
-    </div>
+        {{-- Date Display Only --}}
+        <div class="bg-white px-3 py-2 rounded-3 shadow-sm border">
+            <i class="bi bi-calendar-check text-primary me-2"></i>
+            <span class="fw-bold text-dark">{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</span>
+        </div>
 </div>
 
 {{-- ================= Summary Cards ================= --}}
@@ -70,36 +57,65 @@
         {{-- Line Chart Card --}}
         <div class="card shadow-sm border-0 rounded-3 mb-4">
             <div class="card-header bg-white fw-bold">
-                <i class="bi bi-graph-up me-1 text-primary"></i> Grafik Pertumbuhan Santri
-                <small class="text-muted ms-2">(Per bulan)</small>
+                <i class="bi bi-graph-up me-1 text-primary"></i> Statistik Setoran Hafalan
+                <small class="text-muted ms-2">(6 Bulan Terakhir)</small>
             </div>
             <div class="card-body">
                 <canvas id="santriChart" height="120"></canvas>
             </div>
         </div>
 
-        {{-- Recent activity / quick list --}}
+        {{-- Setoran Hafalan Terakhir --}}
         <div class="card shadow-sm border-0 rounded-3">
-            <div class="card-header bg-white fw-bold">
-                <i class="bi bi-clock-history me-1 text-muted"></i> Aktivitas Terbaru
+            <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-journal-check me-1 text-success"></i> Setoran Hafalan Hari Ini</span>
+                <a href="#" class="btn btn-sm btn-light text-primary">Lihat Semua</a>
             </div>
-            <div class="card-body">
-                {{-- jika $activities dikirim dari controller, gunakan itu; contoh format: collection of objects with user.name, action, created_at --}}
-                @if(isset($activities) && $activities->isNotEmpty())
-                    <ul class="list-group list-group-flush">
-                        @foreach($activities as $act)
-                            <li class="list-group-item d-flex justify-content-between align-items-start">
-                                <div>
-                                    <div class="fw-semibold">{{ $act->user->name ?? 'System' }}</div>
-                                    <div class="small text-muted">{{ $act->action ?? $act->aksi ?? '—' }}</div>
-                                </div>
-                                <div class="small text-muted">{{ \Carbon\Carbon::parse($act->created_at)->diffForHumans() }}</div>
-                            </li>
-                        @endforeach
-                    </ul>
-                @else
-                    <p class="text-center text-muted mb-0">Belum ada aktivitas terbaru.</p>
-                @endif
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-3">Santri</th>
+                                <th>Hafalan</th>
+                                <th>Status</th>
+                                <th>Waktu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{-- Data passed from controller --}}
+                            @forelse($recentSetoran as $setoran)
+                                <tr>
+                                    <td class="ps-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle bg-light text-primary me-2 fw-bold" style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:50%;">
+                                                {{ substr($setoran->name, 0, 1) }}
+                                            </div>
+                                            <span class="fw-semibold">{{ $setoran->name }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="small fw-bold">{{ $setoran->surat }}</div>
+                                        <div class="small text-muted">Ayat {{ $setoran->ayat }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-opacity-10 text-{{ $setoran->color ?? 'secondary' }} px-2 py-1">
+                                            {{ $setoran->status }}
+                                        </span>
+                                    </td>
+                                    <td class="text-muted small">{{ $setoran->time }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">
+                                        <i class="bi bi-calendar-x d-block fs-4 mb-1 opacity-50"></i>
+                                        <small>Belum ada setoran hari ini.</small>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -109,26 +125,44 @@
         {{-- Pie chart --}}
         <div class="card shadow-sm border-0 rounded-3 mb-4">
             <div class="card-header bg-white fw-bold">
-                <i class="bi bi-pie-chart me-1 text-success"></i> Komposisi Data
+                <i class="bi bi-pie-chart me-1 text-success"></i> Sebaran Santri per Kelas
             </div>
             <div class="card-body text-center">
-                <canvas id="pieChart" height="180"></canvas>
-                <div class="mt-3 d-flex justify-content-center gap-2 flex-wrap">
-                    <small class="text-muted"><span class="badge bg-primary">&nbsp;</span> Santri</small>
-                    <small class="text-muted"><span class="badge bg-success">&nbsp;</span> Ustadz</small>
-                    <small class="text-muted"><span class="badge bg-warning">&nbsp;</span> Kelas</small>
-                    <small class="text-muted"><span class="badge bg-danger">&nbsp;</span> Pelajaran</small>
-                </div>
+                <canvas id="pieChart" height="220"></canvas>
             </div>
         </div>
 
-        {{-- Calendar (FullCalendar placeholder) --}}
+        {{-- Laporan Terbaru --}}
         <div class="card shadow-sm border-0 rounded-3 mb-4">
-            <div class="card-header bg-white fw-bold">
-                <i class="bi bi-calendar-event me-1 text-info"></i> Kalender Kegiatan
+            <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-envelope-paper me-1 text-info"></i> Laporan Masuk</span>
+                <a href="#" class="btn btn-sm btn-light text-primary">Lihat Semua</a>
             </div>
-            <div class="card-body">
-                <div id="calendar"></div>
+            <div class="card-body p-3">
+                @if(isset($latestLaporan) && count($latestLaporan) > 0)
+                    <div class="d-flex flex-column gap-3">
+                        @foreach($latestLaporan as $laporan)
+                            <div class="p-3 border rounded-3 bg-white position-relative hover-shadow transition-all">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle bg-primary bg-gradient text-white me-2 small fw-bold shadow-sm" style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:50%;">
+                                            {{ $laporan->initial }}
+                                        </div>
+                                        <span class="fw-bold text-dark small">{{ $laporan->penulis }}</span>
+                                    </div>
+                                    <small class="text-muted" style="font-size: 0.75rem;">{{ $laporan->waktu }}</small>
+                                </div>
+                                <h6 class="fw-bold mb-1 text-primary" style="font-size: 0.95rem;">{{ $laporan->judul }}</h6>
+                                <p class="text-muted small mb-0 line-clamp-2" style="line-height: 1.4;">{{ $laporan->isi }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>
+                        <small>Belum ada laporan masuk.</small>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -164,9 +198,7 @@
 <script src="https://cdn.jsdelivr.net/npm/countup.js@2.0.7/dist/countUp.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-{{-- FullCalendar (CDN) --}}
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+{{-- FullCalendar (Removed) --}}
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -177,105 +209,67 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!cu.error) cu.start(); else console.error(cu.error);
     });
 
-    // ===== Line Chart (Santri per bulan) =====
-    // Controller should pass $months (array of labels) and $santriCounts (array of numbers)
-    const months = {!! json_encode($months ?? ['Jan','Feb','Mar','Apr','Mei','Jun']) !!};
-    const santriCounts = {!! json_encode($santriCounts ?? [10,20,15,25,30,40]) !!};
+    // ===== Line Chart (Statistik Setoran) =====
+    const months = {!! json_encode($months) !!};
+    const santriCounts = {!! json_encode($santriCounts) !!};
     const ctx = document.getElementById('santriChart').getContext('2d');
     const santriChart = new Chart(ctx, {
-        type: 'line',
+        type: 'bar', // Changed to bar for better visualization of counts
         data: {
             labels: months,
             datasets: [{
-                label: 'Jumlah Santri',
+                label: 'Jumlah Setoran',
                 data: santriCounts,
-                borderColor: '#4e73df',
-                backgroundColor: 'rgba(78,115,223,0.12)',
-                fill: true,
-                tension: 0.35,
-                pointRadius: 4,
+                backgroundColor: 'rgba(78, 115, 223, 0.7)',
+                borderColor: 'rgba(78, 115, 223, 1)',
+                borderWidth: 1,
+                borderRadius: 4,
+                barPercentage: 0.6
             }]
         },
         options: {
             plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
             responsive: true,
             maintainAspectRatio: false
         }
     });
 
-    // ===== Pie Chart (composition) =====
+    // ===== Pie Chart (Sebaran Kelas) =====
+    const pieLabels = {!! json_encode($pieLabels) !!};
+    const pieData = {!! json_encode($pieData) !!};
     const pieCtx = document.getElementById('pieChart').getContext('2d');
+    
+    // Generate colors dynamically
+    const generateColors = (count) => {
+        const colors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', '#5a5c69'];
+        return Array.from({length: count}, (_, i) => colors[i % colors.length]);
+    };
+
     const pie = new Chart(pieCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Santri','Ustadz','Pelajaran','Kelas'],
+            labels: pieLabels,
             datasets: [{
-                data: [{{ $totalSantri ?? 0 }}, {{ $totalUstadz ?? 0 }}, {{ $totalPelajaran ?? 0 }}, {{ $totalKelas ?? 0 }}],
-                backgroundColor: ['#4e73df','#1cc88a','#f6c23e','#e74a3b']
+                data: pieData,
+                backgroundColor: generateColors(pieLabels.length),
+                hoverOffset: 4
             }]
         },
         options: {
-            plugins: { legend: { position: 'bottom' } },
-            cutout: '70%',
+            plugins: { 
+                legend: { 
+                    position: 'bottom',
+                    labels: { boxWidth: 12, usePointStyle: true }
+                } 
+            },
+            cutout: '65%',
             responsive: true,
             maintainAspectRatio: false
         }
     });
 
-    // ===== FullCalendar init (example events) =====
-    const calendarEl = document.getElementById('calendar');
-    if (calendarEl) {
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'listWeek',
-            height: 420,
-            headerToolbar: {
-                left: '',
-                center: 'title',
-                right: 'prev,next'
-            },
-            events: {!! json_encode($calendarEvents ?? [
-                ['title'=>'Ujian Tengah Semester','start'=>now()->addDays(2)->toDateString()],
-                ['title'=>'Rapat Guru','start'=>now()->addDays(5)->toDateString()]
-            ]) !!},
-        });
-        calendar.render();
-    }
-
-    // ===== SweetAlert2 Notification demo (simulate realtime) =====
-    document.getElementById('notifyTest')?.addEventListener('click', () => {
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'success',
-            title: 'Contoh: Data berhasil disimpan',
-            showConfirmButton: false,
-            timer: 2500
-        });
-    });
-
-    // ===== Theme toggle (light/dark) using localStorage =====
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = document.getElementById('themeIcon');
-    const root = document.documentElement;
-    const savedTheme = localStorage.getItem('dashboard_theme') || 'light';
-
-    const applyTheme = (t) => {
-        if (t === 'dark') {
-            root.classList.add('dark-mode');
-            themeIcon.className = 'bi bi-sun-fill';
-        } else {
-            root.classList.remove('dark-mode');
-            themeIcon.className = 'bi bi-moon-fill';
-        }
-        localStorage.setItem('dashboard_theme', t);
-    };
-    applyTheme(savedTheme);
-
-    themeToggle?.addEventListener('click', () => {
-        const next = localStorage.getItem('dashboard_theme') === 'dark' ? 'light' : 'dark';
-        applyTheme(next);
-    });
+    // ===== Theme toggle removed =====
 
 });
 </script>
@@ -288,42 +282,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /* small polish */
     .card-header { border-bottom: 1px solid #f8f9fb; }
-
-    /* dark-mode variables */
-    .dark-mode {
-        --bg: #0b1220;
-        --card: #0f1724;
-        --text: #e6eef8;
-        --muted: #9fb0c8;
+    
+    .hover-shadow:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transform: translateY(-2px);
+        border-color: #a5b4fc !important;
     }
-    .dark-mode body { background: var(--bg); color: var(--text); }
-    .dark-mode .card { background: var(--card); color: var(--text); border-color: rgba(255,255,255,0.03); }
-    .dark-mode .text-muted { color: var(--muted) !important; }
-
-        /* === Tambahan fix untuk dark mode tabel & card === */
-    .dark-mode table,
-    .dark-mode .table {
-        background-color: var(--card) !important;
-        color: var(--text) !important;
-        border-color: rgba(255,255,255,0.05) !important;
+    .transition-all { transition: all 0.2s ease; }
+    
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
-    .dark-mode thead,
-    .dark-mode .table thead th {
-        background-color: #1a2333 !important;
-        color: var(--text) !important;
-        border-bottom-color: rgba(255,255,255,0.08) !important;
-    }
-
-    .dark-mode tbody tr:nth-child(even) {
-        background-color: rgba(255,255,255,0.02) !important;
-    }
-
-    .dark-mode .card-header {
-        background-color: #1a2333 !important;
-        color: var(--text) !important;
-        border-bottom-color: rgba(255,255,255,0.08) !important;
-    }
+    /* Dark mode styles removed */
 
 
     /* Fix chart height supaya nggak melar */

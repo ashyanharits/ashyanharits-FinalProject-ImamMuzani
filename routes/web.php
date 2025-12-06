@@ -96,18 +96,27 @@ Route::prefix('ustadz')
     Route::get('/laporan', \App\Http\Livewire\Ustadz\Laporan::class)->name('ustadz.laporan');
 
     Route::get('/assign-data-ustadz', function () {
-    $ustadzId = 1; // Ganti dengan ID ustadz yang ingin diassign
+        $user = Illuminate\Support\Facades\Auth::user();
+        $ustadz = \App\Models\Ustadz::where('user_id', $user->id)->first();
 
-    // 1️⃣ Assign semua santri ke ustadz
-    Santri::query()->update(['ustadz_id' => $ustadzId]);
+        if (!$ustadz) {
+            return "Profil Ustadz tidak ditemukan untuk user ini.";
+        }
 
-    // 2️⃣ Assign semua jadwal ke ustadz
-    Jadwal::query()->update(['ustadz_id' => $ustadzId]);
+        $ustadzId = $ustadz->id;
 
-    // 3️⃣ Assign semua hafalan ke ustadz
-    Hafalan::query()->update(['ustadz_id' => $ustadzId]);
+        // 1️⃣ Assign semua santri yang belum punya ustadz (atau semua santri jika ingin reset)
+        // Untuk keamanan, kita hanya assign yang ustadz_id nya NULL atau 0
+        // TAPI, karena user minta "terhubung", kita assign SEMUA santri ke user ini (Mode Testing)
+        \App\Models\Santri::query()->update(['ustadz_id' => $ustadzId]);
 
-    return "Semua data sudah diassign ke ustadz ID $ustadzId";
+        // 2️⃣ Assign semua jadwal ke ustadz ini
+        \App\Models\Jadwal::query()->update(['ustadz_id' => $ustadzId]);
+
+        // 3️⃣ Assign semua hafalan ke ustadz ini
+        \App\Models\Hafalan::query()->update(['ustadz_id' => $ustadzId]);
+
+        return redirect()->route('dashboardustadz')->with('message', "Semua data berhasil dihubungkan ke akun Anda (ID: $ustadzId)!");
     });
 }
 );
